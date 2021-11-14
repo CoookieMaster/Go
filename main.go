@@ -21,8 +21,6 @@ type Taxi interface {
 
 //Легковое такси
 type Car struct {
-	//Laggage    float32
-	//Passengers int
 	driver      string
 	number      string
 	isavailable bool
@@ -38,8 +36,6 @@ func (car Car) Go(pass Passenger) {
 
 //Грузовое такси
 type LaggegeCar struct {
-	//Laggage    float32
-	//Passengers int
 	driver      string
 	number      string
 	isavailable bool
@@ -69,13 +65,13 @@ func main() {
 	}
 
 	defer db.Close()
-
-	insert, err := db.Query("INSERT INTO 'taxi' ('driver','number', 'isavailable', 'type') VALUES('Перя', 'ау584л', 'false', 'легковое')")
-	if err != nil {
-		panic(err)
-	}
-	defer insert.Close()
-
+	/*
+		insert, err := db.Query("INSERT INTO `taxi`(`id`, `driver`, `number`, `isavailable`, `type`) VALUES ('1','Петя','ау584л','0','легковое'), ('2','Виталя','оу749в','1','легковое'), ('3','Виктор','пв225к','1','грузовое'),  ('4','Илья','лу124е','1','грузовое')")
+		if err != nil {
+			panic(err)
+		}
+		defer insert.Close()
+	*/
 	var cars = []*Car{
 		{driver: "Петя", number: "ау584л", isavailable: false},
 		{driver: "Виталя", number: "оу749в", isavailable: true},
@@ -134,10 +130,34 @@ func main() {
 		count++
 	}
 
-	//Добавление данных
+	//Выборка данных
+	res, err := db.Query("SELECT `driver`, `number`, `isavailable` FROM 'taxi'")
+	if err != nil {
+		panic(err)
+	}
+
+	for res.Next() {
+		var car Car
+		err = res.Scan(&car.driver, &car.number, &car.isavailable)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf(fmt.Sprintf("Водитель: %v, машина № %v свободна: %v. Тип - легковой\n", car.driver, car.number, car.isavailable))
+	}
+
+	for res.Next() {
+		var lagCar LaggegeCar
+		err = res.Scan(&lagCar.driver, &lagCar.number, &lagCar.isavailable)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf(fmt.Sprintf("Водитель: %v, машина № %v свободна: %v. Тип - грузовой\n", lagCar.driver, lagCar.number, lagCar.isavailable))
+	}
+
+	//Попытка добавления данных через цикл
 	/*for  _, value := range cars {
 		insert, err := db.Query("INSERT INTO 'taxi' ('driver','number', 'isavailable', 'type') VALUES('%v', '%v', '%v', 'легковое')", value.driver,
-		value.number, value.isavailable, )
+		value.number, 0)
 		if err != nil {
 			panic(err)
 		}
