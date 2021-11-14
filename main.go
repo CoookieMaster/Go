@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	_ "database/sql"
 	_ "database/sql/driver"
 	"fmt"
@@ -62,6 +63,19 @@ type Passenger struct {
 
 func main() {
 
+	db, err := sql.Open("mysql", "mysql:@tcp(127.0.0.1:3306)/golang")
+	if err != nil {
+		panic(err)
+	}
+
+	defer db.Close()
+
+	insert, err := db.Query("INSERT INTO 'taxi' ('driver','number', 'isavailable', 'type') VALUES('Перя', 'ау584л', 'false', 'легковое')")
+	if err != nil {
+		panic(err)
+	}
+	defer insert.Close()
+
 	var cars = []*Car{
 		{driver: "Петя", number: "ау584л", isavailable: false},
 		{driver: "Виталя", number: "оу749в", isavailable: true},
@@ -120,4 +134,13 @@ func main() {
 		count++
 	}
 
+	//Добавление данных
+	/*for  _, value := range cars {
+		insert, err := db.Query("INSERT INTO 'taxi' ('driver','number', 'isavailable', 'type') VALUES('%v', '%v', '%v', 'легковое')", value.driver,
+		value.number, value.isavailable, )
+		if err != nil {
+			panic(err)
+		}
+		defer insert.Close()
+	}*/
 }
